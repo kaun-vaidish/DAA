@@ -96,12 +96,12 @@ vector<int> bellman_ford(int v, int edges[][100], int s) {
         for (int j = 0; j < v; j++) {
 
             if(edges[i][j]!=-1){
-                int u = i;
-                int v = j;
+                int source = i;
+                int dest = j;
                 
-                int wt = edges[u][v];
-                if (cost[u] != INT_MAX && cost[u] + wt < cost[v]) {
-                    cost[v] = cost[u] + wt;
+                int wt = edges[source][dest];
+                if (cost[source] != INT_MAX && cost[source] + wt < cost[dest]) {
+                    cost[dest] = cost[source] + wt;
                 }
             }
         }
