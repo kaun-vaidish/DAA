@@ -1,152 +1,90 @@
-// #include <bits/stdc++.h>
-// using namespace std;
-
-//     /*  Function to implement Bellman Ford
-//     *   edges: vector of vectors which represents the graph
-//     *   s: source vertex to start traversing graph with
-//     *   v: number of vertices
-//     */
-// vector<int> bellman_ford(int v, int &edges[][3], int s) {
-//     vector<int>cost(v,INT_MAX);
-//     cost[s] = 0;
-    
-    
-//     for(int i = 0 ; i < v ; i++){
-//         for(int j = 0 ; j < v ; j++){
-//             int u = i;
-//             int v = j;
-//             int wt = edges[u][v];
-//             if( cost[u]!=INT_MAX && cost[u] + wt < cost[v]){
-//                 cost[v] = cost[u] + wt;
-//             }
-//         }
-//     }
-    
-//     int i = v;
-//     for(int j = 0 ; j < v ; j++){
-//         int u = i;
-//         int v = j;
-//         int wt = edges[u][v];
-//         if( cost[u]!=INT_MAX && cost[u] + wt < cost[v]){
-//             cost[v] = cost[u] + wt;
-//         }
-//     }
-    
-//     return cost;
-// }
-
-
-
-// int main() {
-
-//     int v, m; //m is no. of edges
-//     cout<<"Enter number of vertices ";
-//     cin >> v;
-//     cout<<"Enter number of edges ";
-//     cin >> m;
-//     int edges[v][v];
-
-//     for(int i = 0 ; i < v ; i++){
-//         for(int j = 0 ; j < v ; j++){
-//             edges[i][j] = INT_MAX;
-//         }
-//     }
-
-//     for (int i = 0; i < m; ++i) {
-
-//         int u ;
-//         cout<<"Enter source starting point of edge : ";
-//         cin>>u;
-        
-//         int v ;
-//         cout<<"Enter destination point of edge : ";
-//         cin>>v;
-        
-//         int wt ;
-//         cout<<"Enter weight of edge : ";
-//         cin>>wt;
-        
-//         edges[u][v] = wt;
-//     }
-
-//     int src;
-//     cout<<"Enter source :";
-//     cin >> src;
-
-//     vector<int> res = bellman_ford(v, edges, src);
-
-//     cout<<"The minimum distance array is : ";
-//     for (auto x : res) {
-//         cout << x << " ";
-//     }
-//     cout << "\n";
-    
-//     return 0;
-// }
-
-
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> bellman_ford(int v, int edges[][100], int s) {
-    vector<int> cost(v, INT_MAX);
+void bellman_ford(int v, vector<vector<int>>& edges, int s) {
+    vector<int>cost(v,1e8);
+    vector<int>prev(v,1e8);
+
     cost[s] = 0;
-
-    for (int i = 0; i < v; i++) {
-        for (int j = 0; j < v; j++) {
-
-            if(edges[i][j]!=-1){
-                int source = i;
-                int dest = j;
-                
-                int wt = edges[source][dest];
-                if (cost[source] != INT_MAX && cost[source] + wt < cost[dest]) {
-                    cost[dest] = cost[source] + wt;
-                }
+    prev[s] = 0;
+    
+    for(int i = 0 ; i < v ; i++){
+        for(int j = 0 ; j < edges.size() ; j++){
+            int u = edges[j][0];
+            int v = edges[j][1];
+            int wt = edges[j][2];
+            if( cost[u]!=1e8 && cost[u] + wt < cost[v]){
+                cost[v] = cost[u] + wt;
             }
         }
-    }
-
-    return cost;
+        cout<<"\n\nIteration"<<i+1<<"  :      ";
+        for(int k = 0 ; k < v ; k++){
+            cout<<cost[k]<<"    ";
+        }
+        if(cost==prev){
+            cout<<"\n\nSame as previous thus no further calculation needed !";
+            break;
+        }
+        prev = cost;
+        if(i==v-1){
+            cout<<"\n\nThere is a negative cycle !";
+            break;
+        }
+    } 
 }
 
-int main() {
-    int v, m; // m is the number of edges
-    cout << "Enter number of vertices ";
-    cin >> v;
-    cout << "Enter number of edges ";
-    cin >> m;
-    int edges[100][100]; // Assuming a maximum size of 100x100 for the array
 
-    for (int i = 0; i < v; i++) {
-        for (int j = 0; j < v; j++) {
-            edges[i][j] = -1;
+int main() {
+
+    int v, e; //e is no. of edges
+    cout<<"Enter number of vertices ";
+    cin >> v;
+    cout<<"Enter number of edges ";
+    cin >> e;
+    vector<vector<int>>edges;
+    int matrix[v][v];
+    for(int i = 0 ; i < v ; i++){
+        for(int j = 0 ; j < v ; j++){
+            matrix[i][j] = 1e8;
         }
     }
 
-    for (int i = 0; i < m; ++i) {
-        int u, v, wt;
-        cout << "Enter source starting point of edge : ";
-        cin >> u;
-        cout << "Enter destination point of edge : ";
-        cin >> v;
-        cout << "Enter weight of edge : ";
-        cin >> wt;
-
-        edges[u][v] = wt;
+    for (int i = 0; i < e; ++i) {
+        vector<int> temp;
+        int u ;
+        cout<<"Enter source starting point of edge : ";
+        cin>>u;
+        temp.push_back(u);
+        int v ;
+        cout<<"Enter destination point of edge : ";
+        cin>>v;
+        temp.push_back(v);
+        int wt ;
+        cout<<"Enter weight of edge : ";
+        cin>>wt;
+        matrix[u][v] = wt;
+        temp.push_back(wt);
+        edges.push_back(temp);
     }
 
     int src;
-    cout << "Enter source :";
+    cout<<"Enter source :";
     cin >> src;
 
-    vector<int> res = bellman_ford(v, edges, src);
-
-    cout << "The minimum distance array is : ";
-    for (auto x : res) {
-        cout << x << " ";
+    cout<<"\nThe adjacency matrix is :\n";
+    for(int i = 0 ; i < v ; i++){
+        cout<<endl;
+        for(int j = 0 ; j < v ; j++){
+            cout<<"     "<<matrix[i][j]<<"      " ;
+        }
     }
-    cout << "\n";
 
+    cout<<"\n\nThe set of edges is :  ";
+    for(int i = 0 ; i < edges.size() ; i++){
+        cout<<"("<<edges[i][0]<<","<<edges[i][1]<<")\t";
+    }
+    
+    bellman_ford(v,edges,src);
     return 0;
 }
+
