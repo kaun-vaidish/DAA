@@ -41,6 +41,9 @@ int main() {
     cin >> v;
     cout<<"Enter number of edges ";
     cin >> e;
+    int src;
+    cout<<"Enter source :";
+    cin >> src;
     vector<vector<int>>edges;
     int matrix[v][v];
     for(int i = 0 ; i < v ; i++){
@@ -66,10 +69,6 @@ int main() {
         temp.push_back(wt);
         edges.push_back(temp);
     }
-
-    int src;
-    cout<<"Enter source :";
-    cin >> src;
 
     cout<<"\nThe adjacency matrix is :\n";
     for(int i = 0 ; i < v ; i++){
