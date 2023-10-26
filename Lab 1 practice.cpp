@@ -111,6 +111,5 @@ int main(){
     }
 
     dynamic(items,n,capacity);
-
     
 }
