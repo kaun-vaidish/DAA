@@ -1,75 +1,137 @@
-#include <iostream>
-#include <climits>
+#include <bits/stdc++.h>
 
-const int MAX_N = 16; // Maximum number of vertices
+using namespace std;
 
-int n; // Number of vertices
-int graph[MAX_N][MAX_N]; // Adjacency matrix for the graph
-int best_path[MAX_N];
-int current_path[MAX_N];
-bool visited[MAX_N];
-int best_weight = INT_MAX;
-int current_weight = 0;
+const int INF = INT_MAX;
 
-const int INF = 999; // "999" represents infinity
+// Function to reduce rows and columns in the cost matrix
+void reduceMatrix(vector<vector<int>>& costMatrix) {
+    int n = costMatrix.size();
 
-void tsp(int u, int depth) {
-    visited[u] = true;
-    current_path[depth] = u;
+    // Reduce rows
+    for (int i = 0; i < n; i++) {
+        int minVal = INF;
+        for (int j = 0; j < n; j++) {
+            if (costMatrix[i][j] < minVal) {
+                minVal = costMatrix[i][j];
+            }
+        }
+        if (minVal != INF) {
+            for (int j = 0; j < n; j++) {
+                if (costMatrix[i][j] != INF) {
+                    costMatrix[i][j] -= minVal;
+                }
+            }
+        }
+    }
 
-    if (depth == n - 1) {
-        if (graph[u][0] != INF && current_weight + graph[u][0] < best_weight) {
-            best_weight = current_weight + graph[u][0];
+    // Reduce columns
+    for (int j = 0; j < n; j++) {
+        int minVal = INF;
+        for (int i = 0; i < n; i++) {
+            if (costMatrix[i][j] < minVal) {
+                minVal = costMatrix[i][j];
+            }
+        }
+        if (minVal != INF) {
             for (int i = 0; i < n; i++) {
-                best_path[i] = current_path[i];
+                if (costMatrix[i][j] != INF) {
+                    costMatrix[i][j] -= minVal;
+                }
             }
         }
     }
+}
 
-    for (int v = 0; v < n; v++) {
-        if (!visited[v] && graph[u][v] != INF) {
-            current_weight += graph[u][v];
+// Branch and Bound function
+void branchAndBoundTSP(vector<vector<int>>& costMatrix, int& minCost, int level, int pathLength, vector<int>& path, vector<int>& minPath) {
+    int n = costMatrix.size();
 
-            if (current_weight < best_weight) {
-                tsp(v, depth + 1);
-            }
-
-            current_weight -= graph[u][v];
+    if (level == n) {
+        // All cities have been visited
+        pathLength += costMatrix[path[level - 1]][path[0]];
+        if (pathLength < minCost) {
+            minCost = pathLength;
+            minPath = path;
         }
+        return;
     }
 
-    visited[u] = false;
+    for (int i = 0; i < n; i++) {
+        if (costMatrix[path[level - 1]][i] != INF) {
+            if (find(path.begin(), path.end(), i) == path.end()) {
+                int temp = costMatrix[path[level - 1]][i];
+                pathLength += temp;
+
+                if (pathLength + (n - level) * temp < minCost) {
+                    path[level] = i;
+                    branchAndBoundTSP(costMatrix, minCost, level + 1, pathLength, path, minPath);
+                }
+
+                pathLength -= temp;
+            }
+        }
+    }
 }
 
 int main() {
-    std::cout << "Enter the number of vertices: ";
-    std::cin >> n;
 
-    std::cout << "Enter the source and destination vertices for each edge (Enter 999 for no edge):" << std::endl;
-    for (int i = 1; i < n+1; i++) {
-        for (int j = 1; j < n+1; j++) {
-            std::cout << "Enter the weight from vertex " << i << " to vertex " << j << ": ";
-            std::cin >> graph[i][j];
-            if (graph[i][j] == 999) {
-                graph[i][j] = INF; // Convert 999 to infinity
+    int n;  // Number of cities
+    cout << "Enter the number of cities: ";
+    cin >> n;
+
+    vector<vector<int>> costMatrix(n, vector<int>(n));
+
+    cout << "Enter the cost matrix (use 0 for unconnected cities):\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> costMatrix[i][j];
+            if (costMatrix[i][j] == 0) {
+                costMatrix[i][j] = INF;
             }
         }
     }
 
+    vector<int> path(n);
+    vector<int> minPath(n);
+    int minCost = INF;
+
+    reduceMatrix(costMatrix);
+    path[0] = 0;  // Starting from city 0
+    branchAndBoundTSP(costMatrix, minCost, 1, 0, path, minPath);
+
+    cout << "Optimal TSP tour: ";
     for (int i = 0; i < n; i++) {
-        visited[i] = false;
+        cout << minPath[i] << " -> ";
     }
+    cout << minPath[0] << endl;
 
-    tsp(0, 0);
-
-    std::cout << "Optimal TSP Path: ";
-    for (int i = 0; i < n; i++) {
-        std::cout << best_path[i] << " ";
-    }
-    std::cout << "0" << std::endl;
-
-    std::cout << "Total Weight: " << best_weight << std::endl;
+    cout << "Minimum cost: " << minCost << endl;
 
     return 0;
 }
 
+/*
+
+Enter the number of cities: 4
+Enter the cost matrix (use 0 for unconnected cities):
+0
+10
+15
+20
+10
+0
+35
+25
+15
+35
+0
+30
+20
+25
+30
+0
+Optimal TSP tour: 0 -> 1 -> 2 -> 3 -> 0
+Minimum cost: 25
+
+*/
