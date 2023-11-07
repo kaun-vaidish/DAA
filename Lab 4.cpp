@@ -132,6 +132,7 @@ int main()
 		cout<<"\nEnter Weight of this edge :";
 		cin>>wt;
 		mat[u][v]=wt;
+		mat[v][u]=wt;
 	}
 	cout<<"------Distance matrix------\n";
 	for(int i=0;i<n;i++)
